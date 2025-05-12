@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Enhanced Interactive Particle Text</title>
+  <link href="https://fonts.googleapis.com/css2?family=Satoshi:wght@400&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      overflow: hidden;
+      background: white;
+      font-family: 'Satoshi', sans-serif;
+      color: white;
+    }
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+  .button-container {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 80px;
+  display: flex;
+  gap: 20px;
+  z-index: 1;
+}
+
+button {
+  padding: 12px 24px;
+  background-color: #AF0;
+  color: #000;
+  border: none;
+  border-radius: 22px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #eee;
+}
+    #controlPanel {
+      position: fixed;
+      right: 20px;
+      top: 20px;
+      width: 300px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border: 1px solid #444;
+      border-radius: 10px;
+      padding: 15px;
+      z-index: 10;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .control-group {
+      border-bottom: 1px solid #333;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+    .control-group h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #fff;
+      font-size: 16px;
+    }
+    .slider-container {
+      margin-bottom: 5px;
+    }
+    .slider-container label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 3px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .slider-container span {
+      font-size: 12px;
+      color: #AF0;
+    }
+    input[type="range"] {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .toggle-controls {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      border: 1px solid #444;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 11;
+    }
+    #presets {
+      margin-bottom: 15px;
+    }
+    #presets select {
+      width: 70%;
+      padding: 5px;
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      border-radius: 4px;
+    }
+    #presets button {
+      position: relative;
+      left: auto;
+      bottom: auto;
+      transform: none;
+      padding: 5px 10px;
+      font-size: 12px;
+      margin-left: 5px;
+      background: #333;
+    }
+  .control-panel-toggle {
+  background-color: #AF0;
+  color: #000;
+}
+
+.regenerateText {
+  background-color: #AF0;
+  color: #000;
+}
+  </style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<div class="button-container">
+  <button id="changeTextBtn">Message</button>
+  <button class="regenerateText" id="regenerateText">Regenerate</button>
+  <button class="control-panel-toggle" id="togglePanel">Controls</button>
+</div>
+
+<div id="controlPanel" style="display: none;">
+  <div id="presets">
+    <h3>Presets</h3>
+    <select id="presetSelect">
+      <option value="default">Default</option>
+      <option value="gentle">Gentle Waves</option>
+      <option value="explosive">Explosive Entrance</option>
+      <option value="smooth">Smooth Transitions</option>
+      <option value="chaotic">Chaotic Motion</option>
+    </select>
+    <button id="applyPreset">Apply</button>
+  </div>
+
+  <!-- Particle Personality Controls -->
+  <div class="control-group">
+    <h3>Particle Personality</h3>
+    <div class="slider-container">
+      <label>Energy Range <span id="energyRangeValue">0.7 - 1.3</span></label>
+      <input type="range" id="energyMin" min="0.1" max="1.5" step="0.1" value="0.7">
+      <input type="range" id="energyMax" min="0.5" max="2.0" step="0.1" value="1.3">
+    </div>
+    <div class="slider-container">
+      <label>Curiosity Range <span id="curiosityRangeValue">0.5 - 2.0</span></label>
+      <input type="range" id="curiosityMin" min="0.1" max="1.5" step="0.1" value="0.5">
+      <input type="range" id="curiosityMax" min="0.5" max="3.0" step="0.1" value="2.0">
+    </div>
+    <div class="slider-container">
+      <label>Patience Variation <span id="patienceValue">1.0</span></label>
+      <input type="range" id="patience" min="0.1" max="2.0" step="0.1" value="1.0">
+    </div>
+  </div>
+
+  <!-- Flocking Behavior Controls -->
+  <div class="control-group">
+    <h3>Flocking Behavior</h3>
+    <div class="slider-container">
+      <label>Wave Strength <span id="waveStrengthValue">0.3</span></label>
+      <input type="range" id="waveStrength" min="0.0" max="1.0" step="0.05" value="0.3">
+    </div>
+    <div class="slider-container">
+      <label>Exploration Duration <span id="explorationDurationValue">80-240</span></label>
+      <input type="range" id="explorationDurationMin" min="20" max="200" step="10" value="80">
+      <input type="range" id="explorationDurationMax" min="100" max="400" step="10" value="240">
+    </div>
+    <div class="slider-container">
+      <label>Exploration Intensity <span id="explorationIntensityValue">0.5-2.0</span></label>
+      <input type="range" id="explorationStrengthMin" min="0.1" max="1.0" step="0.1" value="0.5">
+      <input type="range" id="explorationStrengthMax" min="1.0" max="3.0" step="0.1" value="2.0">
+    </div>
+    <div class="slider-container">
+      <label>Resolve Delay <span id="resolveDelayValue">120-200</span></label>
+      <input type="range" id="resolveDelayMin" min="50" max="150" step="10" value="120">
+      <input type="range" id="resolveDelayMax" min="150" max="300" step="10" value="200">
+    </div>
+  </div>
+
+  <!-- Movement Physics Controls -->
+  <div class="control-group">
+    <h3>Movement Physics</h3>
+    <div class="slider-container">
+      <label>Velocity Damping <span id="velocityDampingValue">0.88</span></label>
+      <input type="range" id="velocityDamping" min="0.75" max="0.98" step="0.01" value="0.88">
+    </div>
+    <div class="slider-container">
+      <label>Initial Force <span id="initialForceValue">2-6</span></label>
+      <input type="range" id="initialForceMin" min="0.5" max="5" step="0.5" value="2">
+      <input type="range" id="initialForceMax" min="2" max="10" step="0.5" value="6">
+    </div>
+    <div class="slider-container">
+      <label>Homing Strength <span id="homingStrengthValue">0.005</span></label>
+      <input type="range" id="homingStrength" min="0.001" max="0.02" step="0.001" value="0.005">
+    </div>
+    <div class="slider-container">
+      <label>Wandering Intensity <span id="wanderingIntensityValue">0.3</span></label>
+      <input type="range" id="wanderingIntensity" min="0" max="1" step="0.05" value="0.3">
+    </div>
+  </div>
+
+  <!-- Mouse Interaction Controls -->
+  <div class="control-group">
+    <h3>Mouse Interaction</h3>
+    <div class="slider-container">
+      <label>Mouse Radius <span id="mouseRadiusValue">100</span></label>
+      <input type="range" id="mouseRadius" min="50" max="300" step="10" value="100">
+    </div>
+    <div class="slider-container">
+      <label>Repulsion Force <span id="repulsionForceValue">3</span></label>
+      <input type="range" id="repulsionForce" min="0.5" max="10" step="0.5" value="3">
+    </div>
+  </div>
+
+  <!-- Animation Controls -->
+  <div class="control-group">
+    <h3>Animation Timings</h3>
+    <div class="slider-container">
+      <label>Lift-off Delay <span id="liftOffDelayValue">0-60</span></label>
+      <input type="range" id="liftOffDelayMax" min="10" max="150" step="10" value="60">
+    </div>
+    <div class="slider-container">
+      <label>Dying Duration <span id="dyingDurationValue">80</span></label>
+      <input type="range" id="dyingDuration" min="30" max="200" step="10" value="80">
+    </div>
+    <div class="slider-container">
+      <label>Opacity Fade Rate <span id="opacityFadeValue">0.02</span></label>
+      <input type="range" id="opacityFade" min="0.005" max="0.05" step="0.005" value="0.02">
+    </div>
+  </div>
+
+  <!-- Text Controls -->
+  <div class="control-group">
+    <h3>Text Settings</h3>
+    <div class="slider-container">
+      <label>Font Size <span id="fontSizeValue">48</span></label>
+      <input type="range" id="fontSize" min="24" max="72" step="2" value="48">
+    </div>
+    <div class="slider-container">
+      <label>Point Spacing <span id="pointSpacingValue">3</span></label>
+      <input type="range" id="pointSpacing" min="2" max="8" step="1" value="3">
+    </div>
+    <div class="slider-container">
+      <label>Line Height <span id="lineHeightValue">56</span></label>
+      <input type="range" id="lineHeight" min="32" max="100" step="4" value="56">
+    </div>
+  </div>
+
+
+</div>
+
+<script>
+// ========================
+// CONFIGURATION PARAMETERS
+// ========================
+const config = {
+  // Particle personality traits
+  energyRange: { min: 0.7, max: 1.3 },        // How energetically particles move
+  curiosityRange: { min: 0.5, max: 2.0 },     // How far particles explore
+  patienceVariation: 1.0,                     // Multiplier for patience values
+
+  // Flocking behavior
+  waveStrength: 0.3,                          // Strength of wave patterns during flocking
+  explorationDuration: { min: 80, max: 240 }, // How long particles explore before resolving
+  explorationStrength: { min: 0.5, max: 2.0 },// How intensely particles explore
+  resolveDelay: { min: 120, max: 200 },       // Delay before particles start going home
+
+  // Movement physics
+  velocityDamping: 0.88,                      // How quickly velocity slows down (higher = less damping)
+  initialForce: { min: 2, max: 6 },           // Initial velocity when particles spawn/repurpose
+  homingStrength: 0.005,                      // How strongly particles are pulled to home position
+  wanderingIntensity: 0.3,                    // Intensity of random wandering motion
+
+  // Mouse interaction
+  mouseRadius: 100,                           // Radius of mouse influence
+  repulsionForce: 3,                          // How strongly particles are pushed by mouse
+
+  // Animation timings
+  liftOffDelay: { max: 60 },                  // Maximum time before particles start moving
+  dyingDuration: 80,                          // How long particles take to fade out
+  opacityFadeRate: 0.02,                      // How quickly dying particles fade out
+
+  // Text settings
+  fontSize: 48,                               // Size of font for text rendering
+  pointSpacing: 3,                            // Spacing between points on text
+  lineHeight: 56                              // Line height for multi-line text
+};
+
+// Presets for quick configuration changes
+const presets = {
+  default: { ...config },
+  gentle: {
+    ...config,
+    waveStrength: 0.2,
+    explorationDuration: { min: 60, max: 120 },
+    explorationStrength: { min: 0.3, max: 1.0 },
+    velocityDamping: 0.92,
+    initialForce: { min: 1, max: 3 },
+    wanderingIntensity: 0.2,
+  },
+  explosive: {
+    ...config,
+    energyRange: { min: 1.0, max: 1.8 },
+    waveStrength: 0.5,
+    explorationDuration: { min: 120, max: 280 },
+    explorationStrength: { min: 1.0, max: 3.0 },
+    initialForce: { min: 4, max: 10 },
+    wanderingIntensity: 0.6,
+    velocityDamping: 0.85,
+  },
+  smooth: {
+    ...config,
+    velocityDamping: 0.94,
+    waveStrength: 0.15,
+    homingStrength: 0.003,
+    explorationDuration: { min: 100, max: 180 },
+    wanderingIntensity: 0.15,
+    initialForce: { min: 1, max: 3 },
+  },
+  chaotic: {
+    ...config,
+    waveStrength: 0.8,
+    explorationStrength: { min: 1.5, max: 3.0 },
+    wanderingIntensity: 0.8,
+    velocityDamping: 0.82,
+    homingStrength: 0.002,
+    initialForce: { min: 3, max: 8 },
+  }
+};
+
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+let mouse = {
+  x: null,
+  y: null,
+  radius: config.mouseRadius
+};
+let textIndex = 0;
+const texts = [
+  "How.\nAre.\nYou.\nFeeling?",
+  "What are you prepared\nto do for change",
+  "Make space.\nLet it land.\nThen shape it.",
+  "Nothing clever survives a blank page.\nBe dumb enough to begin.",
+  "Create a mess.\nInvite surprise.\nSteal the ending.",
+  "The muse is bored.\nYou're too reasonable.\nTry being possessed instead."
+];
+
+// =========================
+// PARTICLE CLASS DEFINITION
+// =========================
+class Particle {
+  constructor(x, y, startX = null, startY = null) {
+    // Home position (target coordinates)
+    this.homeX = x;
+    this.homeY = y;
+
+    // Current position (where particle is currently drawn)
+    this.x = startX !== null ? startX : Math.random() * canvas.width;
+    this.y = startY !== null ? startY : Math.random() * canvas.height;
+
+    // Velocity components
+    this.vx = 0;
+    this.vy = 0;
+
+    // Appearance and state
+    this.size = 1;
+    this.t = Math.random() * 1000; // Time variable for wave patterns
+    this.opacity = 0;
+    this.color = "white";
+    this.state = "idle"; // idle, flocking, resolving, or dying
+
+    // Animation timing variables
+    this.resolveDelay = 0;        // Time before starting to resolve
+    this.liftOffDelay = 0;        // Time before starting to move
+    this.explorationPhase = 0;    // Duration of exploration phase
+    this.explorationStrength = 0; // Intensity of exploration
+    this.dyingDelay = 0;          // Time before starting to fade out
+    this.dyingTimer = config.dyingDuration; // How long dying animation lasts
+    this.dead = false;
+
+    // Personality traits
+    this.energy = config.energyRange.min + Math.random() * (config.energyRange.max - config.energyRange.min);
+    this.curiosity = config.curiosityRange.min + Math.random() * (config.curiosityRange.max - config.curiosityRange.min);
+    this.patience = Math.random() * config.patienceVariation;
+  }
+
+  // Draw the particle
+  draw() {
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(0,0,0,${this.opacity})`;
+    ctx.fill();
+  }
+
+  // Update particle position and state
+  update() {
+    this.t += 1; // Increment time variable for wave patterns
+
+    // =====================
+    // FLOCKING STATE LOGIC
+    // =====================
+    if (this.state === "flocking") {
+      // Handle lift-off delay (staggered start)
+      if (this.liftOffDelay > 0) {
+        this.liftOffDelay--;
+        return this.draw();
+      }
+
+      // Enhanced flocking behavior with exploration
+      const wave = config.waveStrength * this.energy;
+
+      // Add swirling patterns
+      this.vx += Math.sin(this.t * 0.02 + this.x * 0.002) * wave;
+      this.vy += Math.cos(this.t * 0.02 + this.y * 0.002) * wave;
+
+      // Occasional bursts of energy
+      if (Math.random() < 0.02) {
+        this.vx += (Math.random() - 0.5) * 3 * this.energy;
+        this.vy += (Math.random() - 0.5) * 3 * this.energy;
+      }
+
+      // EXPLORATION PHASE - more expansive movement before settling
+      if (this.explorationPhase > 0) {
+        this.explorationPhase--;
+
+        // Create graceful arcs and curves
+        const angle = this.t * 0.01 * this.energy;
+        const radius = 50 * this.curiosity;
+        this.vx += Math.sin(angle) * 0.2 * this.explorationStrength;
+        this.vy += Math.cos(angle) * 0.2 * this.explorationStrength;
+
+        // Occasionally change direction dramatically
+        if (Math.random() < 0.01) {
+          const randomAngle = Math.random() * Math.PI * 2;
+          const force = 2 * this.curiosity;
+          this.vx += Math.cos(randomAngle) * force;
+          this.vy += Math.sin(randomAngle) * force;
+        }
+
+        // Subtle attraction to center so particles don't go too far off-screen
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const distToCenter = Math.hypot(centerX - this.x, centerY - this.y);
+        if (distToCenter > canvas.width * 0.4) {
+          this.vx += (centerX - this.x) * 0.0001;
+          this.vy += (centerY - this.y) * 0.0001;
+        }
+      } else {
+        // Start gradually becoming aware of the target position
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        this.vx += (centerX - this.x) * 0.0005;
+        this.vy += (centerY - this.y) * 0.0005;
+
+        // Count down to resolving state
+        this.resolveDelay--;
+        if (this.resolveDelay <= 0) {
+          this.state = "resolving";
+        }
+      }
+    }
+
+    // ============================
+    // RESOLVING & IDLE STATE LOGIC
+    // ============================
+    if (this.state === "resolving" || this.state === "idle") {
+      // Calculate distance to home position
+      let dxHome = this.homeX - this.x;
+      let dyHome = this.homeY - this.y;
+      let distHome = Math.sqrt(dxHome * dxHome + dyHome * dyHome);
+
+      if (distHome > 0.5) {
+        // Enhanced resolving with more graceful approach
+        let noiseStrength = Math.min(1, distHome / 100);
+        const wander = config.wanderingIntensity * noiseStrength;
+
+        // Stronger homing behavior based on distance
+        const homingStrength = config.homingStrength * (1 + distHome / 500);
+        this.vx += dxHome * homingStrength;
+        this.vy += dyHome * homingStrength;
+
+        // More organic wandering en route
+        this.vx += Math.sin(this.t * 0.05 + this.x * 0.01) * wander;
+        this.vy += Math.cos(this.t * 0.05 + this.y * 0.01) * wander;
+
+        // Occasionally take a scenic route
+        if (Math.random() < 0.005 && distHome > 100) {
+          const perpendicularAngle = Math.atan2(dyHome, dxHome) + Math.PI/2;
+          const deviation = Math.sin(this.t * 0.01) * 1.5;
+          this.vx += Math.cos(perpendicularAngle) * deviation;
+          this.vy += Math.sin(perpendicularAngle) * deviation;
+        }
+      } else {
+        // Subtle movement when at home position
+        this.vx += (Math.random() - 0.5) * 0.1;
+        this.vy += (Math.random() - 0.5) * 0.1;
+      }
+    }
+
+    // ==================
+    // DYING STATE LOGIC
+    // ==================
+    if (this.state === "dying") {
+      if (this.dyingDelay > 0) {
+        this.dyingDelay--;
+      } else {
+        // Enhanced dying animation
+        this.vx += (Math.random() - 0.5) * 2;
+        this.vy += (Math.random() - 0.5) * 2;
+
+        this.vx *= 0.96;
+        this.vy *= 0.96;
+
+        // Rotational flutter
+        this.x += Math.sin(this.t * 0.2) * 0.5;
+        this.y += Math.cos(this.t * 0.2) * 0.5;
+
+        // Gradually fade out
+        this.opacity -= config.opacityFadeRate;
+        this.dyingTimer--;
+        if (this.opacity <= 0 || this.dyingTimer <= 0) {
+          this.dead = true;
+        }
+      }
+    }
+
+    // =================
+    // MOUSE INTERACTION
+    // =================
+    let dxMouse = mouse.x - this.x;
+    let dyMouse = mouse.y - this.y;
+    let distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+
+    if (distMouse < mouse.radius) {
+      const angle = Math.atan2(dyMouse, dxMouse);
+      const force = (mouse.radius - distMouse) / mouse.radius;
+      this.vx -= Math.cos(angle) * force * config.repulsionForce;
+      this.vy -= Math.sin(angle) * force * config.repulsionForce;
+      this.color = "#AF0";
+    //make particles bigger when nearer mouse
+      this.size = 2 + force * 3;
+    } else {
+      this.color = "white";
+    }
+    //gradually return to normal size
+    this.size = Math.max(1, this.size * 0.95);
+
+
+    // Apply velocity with damping for fluid movement
+    this.vx *= config.velocityDamping;
+    this.vy *= config.velocityDamping;
+
+    this.x += this.vx;
+    this.y += this.vy;
+
+    // Gradually fade in particles (except when dying)
+    if (this.opacity < 1 && this.state !== "dying") this.opacity += 0.01;
+
+    this.draw();
+  }
+}
+
+// ========================
+// TEXT RENDERING FUNCTIONS
+// ========================
+
+// Generate coordinates for target text points
+function getTargetPoints(text, fontSize = config.fontSize, spacing = config.pointSpacing, lineHeight = config.lineHeight) {
+  const lines = text.split('\n').map(t => t.trim()).filter(Boolean);
+  const offCanvas = document.createElement("canvas");
+  const offCtx = offCanvas.getContext("2d");
+  const width = 1600;
+  const height = lines.length * lineHeight;
+  offCanvas.width = width;
+  offCanvas.height = height;
+
+  offCtx.fillStyle = "white";
+  offCtx.textBaseline = "top";
+  offCtx.font = `${fontSize}px 'Satoshi', sans-serif`;
+
+  // Draw each line of text centered horizontally
+  lines.forEach((line, i) => {
+    const textWidth = offCtx.measureText(line).width;
+    offCtx.fillText(line, (width - textWidth) / 2, i * lineHeight);
+  });
+
+  // Extract points from pixels where text was drawn
+  const imageData = offCtx.getImageData(0, 0, width, height);
+  const points = [];
+  for (let y = 0; y < height; y += spacing) {
+    for (let x = 0; x < width; x += spacing) {
+      const i = (y * width + x) * 4;
+      if (imageData.data[i + 3] > 128) {
+        // Calculate offset to center text on screen
+        const offsetX = canvas.width / 2 - width / 2;
+        const offsetY = canvas.height / 2 - height / 2 - 60;
+        points.push({ x: x + offsetX, y: y + offsetY });
+      }
+    }
+  }
+  return points;
+}
+
+// ===========================
+// TEXT MORPHING & TRANSITIONS
+// ===========================
+
+// Transition from current text to new text
+function morphToNewText(text) {
+  // Generate point coordinates for new text
+  const targets = getTargetPoints(text);
+
+  // Set existing particles to dying with varied timing
+  particles.forEach(p => {
+    p.state = "dying";
+    // Stagger the timing for more organic fading
+    p.dyingDelay = Math.floor(Math.random() * 80);
+    p.dyingTimer = config.dyingDuration;
+  });
+
+  // Create or repurpose particles for new text
+  for (let i = 0; i < targets.length; i++) {
+    const t = targets[i];
+    // Try to reuse an existing particle before creating a new one
+    let p = particles.find(p => p.state === "dying");
+
+    if (p) {
+      // Repurpose existing particle
+      p.homeX = t.x;
+      p.homeY = t.y;
+      p.state = "flocking";
+
+      // Configure exploration phase based on user settings
+      p.explorationPhase = Math.floor(
+        Math.random() *
+        (config.explorationDuration.max - config.explorationDuration.min) +
+        config.explorationDuration.min
+      );
+
+      p.explorationStrength =
+        config.explorationStrength.min +
+        Math.random() * (config.explorationStrength.max - config.explorationStrength.min);
+
+      p.resolveDelay = Math.floor(
+        Math.random() *
+        (config.resolveDelay.max - config.resolveDelay.min) +
+        config.resolveDelay.min
+      );
+
+      p.liftOffDelay = Math.floor(Math.random() * config.liftOffDelay.max);
+
+      // Reset death-related properties
+      p.dyingTimer = config.dyingDuration;
+      p.opacity = Math.min(p.opacity, 1);
+
+      // Give particles initial velocity for dramatic lift-off
+      const angle = Math.random() * Math.PI * 2;
+      const force =
+        config.initialForce.min +
+        Math.random() * (config.initialForce.max - config.initialForce.min);
+
+      p.vx += Math.cos(angle) * force * p.energy;
+      p.vy += Math.sin(angle) * force * p.energy;
+    } else {
+      // Create new particle
+      const nearby = Math.random() < 0.5; // More varied starting positions
+      const spawnX = nearby ? t.x + (Math.random() - 0.5) * 200 : Math.random() * canvas.width;
+      const spawnY = nearby ? t.y + (Math.random() - 0.5) * 200 : Math.random() * canvas.height;
+
+      p = new Particle(t.x, t.y, spawnX, spawnY);
+      p.state = "flocking";
+
+      // Configure exploration using current config
+      p.explorationPhase = Math.floor(
+        Math.random() *
+        (config.explorationDuration.max - config.explorationDuration.min) +
+        config.explorationDuration.min
+      );
+
+      p.explorationStrength =
+        config.explorationStrength.min +
+        Math.random() * (config.explorationStrength.max - config.explorationStrength.min);
+
+      p.resolveDelay = Math.floor(
+        Math.random() *
+        (config.resolveDelay.max - config.resolveDelay.min) +
+        config.resolveDelay.min
+      );
+
+      p.liftOffDelay = Math.floor(Math.random() * config.liftOffDelay.max);
+
+      // More dramatic entrance
+      const angle = Math.random() * Math.PI * 2;
+      const force =
+        config.initialForce.min +
+        Math.random() * (config.initialForce.max - config.initialForce.min);
+
+      p.vx = Math.cos(angle) * force * p.energy;
+      p.vy = Math.sin(angle) * force * p.energy;
+
+      particles.push(p);
+    }
+  }
+}
+
+// ===================
+// ANIMATION FUNCTIONS
+// ===================
+
+// Initialize once fonts are loaded
+document.fonts.ready.then(() => {
+  morphToNewText(texts[0]);
+  animate();
+  setupControlListeners();
+});
+
+// Main animation loop
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Remove dead particles
+  particles = particles.filter(p => !p.dead);
+  // Update and draw remaining particles
+  particles.forEach(p => p.update());
+  requestAnimationFrame(animate);
+}
+
+// =======================
+// EVENT LISTENERS
+// =======================
+
+// Text change button
+document.getElementById("changeTextBtn").addEventListener("click", () => {
+  textIndex = (textIndex + 1) % texts.length;
+  morphToNewText(texts[textIndex]);
+});
+
+// Regenerate current text button
+document.getElementById("regenerateText").addEventListener("click", () => {
+  morphToNewText(texts[textIndex]);
+});
+
+// Mouse movement
+window.addEventListener("mousemove", (e) => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+
+// Window resize
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+
+// Toggle control panel
+document.getElementById("togglePanel").addEventListener("click", function() {
+  const panel = document.getElementById("controlPanel");
+  const isHidden = panel.style.display === "none";
+  panel.style.display = isHidden ? "block" : "none";
+  this.textContent = isHidden ? "Hide Controls" : "Show Controls";
+});
+
+// Apply preset button
+document.getElementById("applyPreset").addEventListener("click", function() {
+  const selectedPreset = document.getElementById("presetSelect").value;
+  if (presets[selectedPreset]) {
+    // Apply the selected preset
+    Object.assign(config, presets[selectedPreset]);
+    // Update all sliders to match the new config
+    updateSliderValues();
+  }
+});
+
+// ======================
+// CONTROL PANEL SETUP
+// ======================
+
+function setupControlListeners() {
+  // Set up event listeners for all sliders
+
+  // Particle Personality
+  setupRangeSliders("energyMin", "energyMax", "energyRangeValue",
+                    value => config.energyRange.min = parseFloat(value),
+                    value => config.energyRange.max = parseFloat(value),
+                    () => `${config.energyRange.min.toFixed(1)} - ${config.energyRange.max.toFixed(1)}`);
+
+  setupRangeSliders("curiosityMin", "curiosityMax", "curiosityRangeValue",
+                    value => config.curiosityRange.min = parseFloat(value),
+                    value => config.curiosityRange.max = parseFloat(value),
+                    () => `${config.curiosityRange.min.toFixed(1)} - ${config.curiosityRange.max.toFixed(1)}`);
+
+  setupSlider("patience", "patienceValue",
+              value => config.patienceVariation = parseFloat(value),
+              () => config.patienceVariation.toFixed(1));
+
+  // Flocking Behavior
+  setupSlider("waveStrength", "waveStrengthValue",
+              value => config.waveStrength = parseFloat(value),
+              () => config.waveStrength.toFixed(2));
+
+  setupRangeSliders("explorationDurationMin", "explorationDurationMax", "explorationDurationValue",
+                    value => config.explorationDuration.min = parseInt(value),
+                    value => config.explorationDuration.max = parseInt(value),
+                    () => `${config.explorationDuration.min}-${config.explorationDuration.max}`);
+
+  setupRangeSliders("explorationStrengthMin", "explorationStrengthMax", "explorationIntensityValue",
+                    value => config.explorationStrength.min = parseFloat(value),
+                    value => config.explorationStrength.max = parseFloat(value),
+                    () => `${config.explorationStrength.min.toFixed(1)}-${config.explorationStrength.max.toFixed(1)}`);
+
+  setupRangeSliders("resolveDelayMin", "resolveDelayMax", "resolveDelayValue",
+                    value => config.resolveDelay.min = parseInt(value),
+                    value => config.resolveDelay.max = parseInt(value),
+                    () => `${config.resolveDelay.min}-${config.resolveDelay.max}`);
+
+  // Movement Physics
+  setupSlider("velocityDamping", "velocityDampingValue",
+              value => config.velocityDamping = parseFloat(value),
+              () => config.velocityDamping.toFixed(2));
+
+  setupRangeSliders("initialForceMin", "initialForceMax", "initialForceValue",
+                    value => config.initialForce.min = parseFloat(value),
+                    value => config.initialForce.max = parseFloat(value),
+                    () => `${config.initialForce.min}-${config.initialForce.max}`);
+
+  setupSlider("homingStrength", "homingStrengthValue",
+              value => config.homingStrength = parseFloat(value),
+              () => config.homingStrength.toFixed(3));
+
+  setupSlider("wanderingIntensity", "wanderingIntensityValue",
+              value => config.wanderingIntensity = parseFloat(value),
+              () => config.wanderingIntensity.toFixed(2));
+
+  // Mouse Interaction
+  setupSlider("mouseRadius", "mouseRadiusValue",
+              value => {
+                config.mouseRadius = parseInt(value);
+                mouse.radius = config.mouseRadius;
+              },
+              () => config.mouseRadius);
+
+  setupSlider("repulsionForce", "repulsionForceValue",
+              value => config.repulsionForce = parseFloat(value),
+              () => config.repulsionForce.toFixed(1));
+
+  // Animation Timings
+  setupSlider("liftOffDelayMax", "liftOffDelayValue",
+              value => config.liftOffDelay.max = parseInt(value),
+              () => `0-${config.liftOffDelay.max}`);
+
+  setupSlider("dyingDuration", "dyingDurationValue",
+              value => config.dyingDuration = parseInt(value),
+              () => config.dyingDuration);
+
+  setupSlider("opacityFade", "opacityFadeValue",
+              value => config.opacityFadeRate = parseFloat(value),
+              () => config.opacityFadeRate.toFixed(3));
+
+  // Text Settings
+  setupSlider("fontSize", "fontSizeValue",
+              value => config.fontSize = parseInt(value),
+              () => config.fontSize);
+
+  setupSlider("pointSpacing", "pointSpacingValue",
+              value => config.pointSpacing = parseInt(value),
+              () => config.pointSpacing);
+
+  setupSlider("lineHeight", "lineHeightValue",
+              value => config.lineHeight = parseInt(value),
+              () => config.lineHeight);
+}
+
+// Helper function for setting up individual sliders
+function setupSlider(sliderId, valueId, updateConfig, getValueText) {
+  const slider = document.getElementById(sliderId);
+  const valueDisplay = document.getElementById(valueId);
+
+  // Set initial value
+  valueDisplay.textContent = getValueText();
+
+  // Add change listener
+  slider.addEventListener("input", function() {
+    updateConfig(this.value);
+    valueDisplay.textContent = getValueText();
+  });
+}
+
+// Helper function for setting up min-max range sliders
+function setupRangeSliders(minSliderId, maxSliderId, valueId, updateMinConfig, updateMaxConfig, getValueText) {
+  const minSlider = document.getElementById(minSliderId);
+  const maxSlider = document.getElementById(maxSliderId);
+  const valueDisplay = document.getElementById(valueId);
+
+  // Set initial value
+  valueDisplay.textContent = getValueText();
+
+  // Add change listeners
+  minSlider.addEventListener("input", function() {
+    const minVal = parseFloat(this.value);
+    const maxVal = parseFloat(maxSlider.value);
+
+    // Ensure min doesn't exceed max
+    if (minVal > maxVal) {
+      maxSlider.value = minVal;
+      updateMaxConfig(minVal);
+    }
+
+    updateMinConfig(minVal);
+    valueDisplay.textContent = getValueText();
+  });
+
+  maxSlider.addEventListener("input", function() {
+    const minVal = parseFloat(minSlider.value);
+    const maxVal = parseFloat(this.value);
+
+    // Ensure max doesn't go below min
+    if (maxVal < minVal) {
+      minSlider.value = maxVal;
+      updateMinConfig(maxVal);
+    }
+
+    updateMaxConfig(maxVal);
+    valueDisplay.textContent = getValueText();
+  });
+}
+
+// Update all slider values based on current config
+function updateSliderValues() {
+  // Particle Personality
+  document.getElementById("energyMin").value = config.energyRange.min;
+  document.getElementById("energyMax").value = config.energyRange.max;
+  document.getElementById("energyRangeValue").textContent = `${config.energyRange.min.toFixed(1)} - ${config.energyRange.max.toFixed(1)}`;
+
+  document.getElementById("curiosityMin").value = config.curiosityRange.min;
+  document.getElementById("curiosityMax").value = config.curiosityRange.max;
+  document.getElementById("curiosityRangeValue").textContent = `${config.curiosityRange.min.toFixed(1)} - ${config.curiosityRange.max.toFixed(1)}`;
+
+  document.getElementById("patience").value = config.patienceVariation;
+  document.getElementById("patienceValue").textContent = config.patienceVariation.toFixed(1);
+
+  // Flocking Behavior
+  document.getElementById("waveStrength").value = config.waveStrength;
+  document.getElementById("waveStrengthValue").textContent = config.waveStrength.toFixed(2);
+
+  document.getElementById("explorationDurationMin").value = config.explorationDuration.min;
+  document.getElementById("explorationDurationMax").value = config.explorationDuration.max;
+  document.getElementById("explorationDurationValue").textContent = `${config.explorationDuration.min}-${config.explorationDuration.max}`;
+
+  document.getElementById("explorationStrengthMin").value = config.explorationStrength.min;
+  document.getElementById("explorationStrengthMax").value = config.explorationStrength.max;
+  document.getElementById("explorationIntensityValue").textContent = `${config.explorationStrength.min.toFixed(1)}-${config.explorationStrength.max.toFixed(1)}`;
+
+  document.getElementById("resolveDelayMin").value = config.resolveDelay.min;
+  document.getElementById("resolveDelayMax").value = config.resolveDelay.max;
+  document.getElementById("resolveDelayValue").textContent = `${config.resolveDelay.min}-${config.resolveDelay.max}`;
+
+  // Movement Physics
+  document.getElementById("velocityDamping").value = config.velocityDamping;
+  document.getElementById("velocityDampingValue").textContent = config.velocityDamping.toFixed(2);
+
+  document.getElementById("initialForceMin").value = config.initialForce.min;
+  document.getElementById("initialForceMax").value = config.initialForce.max;
+  document.getElementById("initialForceValue").textContent = `${config.initialForce.min}-${config.initialForce.max}`;
+
+  document.getElementById("homingStrength").value = config.homingStrength;
+  document.getElementById("homingStrengthValue").textContent = config.homingStrength.toFixed(3);
+
+  document.getElementById("wanderingIntensity").value = config.wanderingIntensity;
+  document.getElementById("wanderingIntensityValue").textContent = config.wanderingIntensity.toFixed(2);
+
+  // Mouse Interaction
+  document.getElementById("mouseRadius").value = config.mouseRadius;
+  document.getElementById("mouseRadiusValue").textContent = config.mouseRadius;
+  mouse.radius = config.mouseRadius;
+
+  document.getElementById("repulsionForce").value = config.repulsionForce;
+  document.getElementById("repulsionForceValue").textContent = config.repulsionForce.toFixed(1);
+
+  // Animation Timings
+  document.getElementById("liftOffDelayMax").value = config.liftOffDelay.max;
+  document.getElementById("liftOffDelayValue").textContent = `0-${config.liftOffDelay.max}`;
+
+  document.getElementById("dyingDuration").value = config.dyingDuration;
+  document.getElementById("dyingDurationValue").textContent = config.dyingDuration;
+
+  document.getElementById("opacityFade").value = config.opacityFadeRate;
+  document.getElementById("opacityFadeValue").textContent = config.opacityFadeRate.toFixed(3);
+
+  // Text Settings
+  document.getElementById("fontSize").value = config.fontSize;
+  document.getElementById("fontSizeValue").textContent = config.fontSize;
+
+  document.getElementById("pointSpacing").value = config.pointSpacing;
+  document.getElementById("pointSpacingValue").textContent = config.pointSpacing;
+
+  document.getElementById("lineHeight").value = config.lineHeight;
+  document.getElementById("lineHeightValue").textContent = config.lineHeight;
+}
+</script>
+</body>
+</html>
